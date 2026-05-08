@@ -16,13 +16,13 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
     
       TF_VAR_admin_password: ${{ secrets.TF_ADMIN_PASSWORD }}
-      
+
       TF_VAR_docker_username: ${{ secrets.DOCKER_USERNAME }}
       TF_VAR_docker_password: ${{ secrets.DOCKER_PASSWORD }}
     steps:
 
       # =========================
-      # Checkout Repository
+      # Checkout Repository \
       # =========================
       - name: Checkout Repository
         uses: actions/checkout@v4
