@@ -126,24 +126,29 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   custom_data = base64encode(<<EOF
 #!/bin/bash
-set -e
 
+# Update packages
 apt-get update -y
+
+# Install Docker
 apt-get install -y docker.io
 
-systemctl enable docker
+# Start Docker
 systemctl start docker
+systemctl enable docker
 
-docker rm -f webapp || true
+# Pull latest image
+sudo docker pull ${var.docker_username}/devops-app:latest
 
-docker pull ${var.docker_username}/devops-app:latest
+# Remove old container if exists
+sudo docker rm -f devops-container || true
 
-docker run -d \
-  --restart unless-stopped \
-  --name webapp \
+# Run container
+sudo docker run -d \
+  --name devops-container \
   -p 80:80 \
   ${var.docker_username}/devops-app:latest
 
 EOF
-  )
+)
 }
