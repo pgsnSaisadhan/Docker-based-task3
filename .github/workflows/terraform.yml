@@ -14,18 +14,27 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
-    
-      TF_VAR_admin_password: ${{ secrets.TF_ADMIN_PASSWORD }}
 
+      TF_VAR_admin_password: ${{ secrets.TF_ADMIN_PASSWORD }}
       TF_VAR_docker_username: ${{ secrets.DOCKER_USERNAME }}
       TF_VAR_docker_password: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
 
       # =========================
-      # Checkout Repository \
+      # Checkout Repository
       # =========================
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      # =========================
+      # Verify Project Structure
+      # =========================
+      - name: Verify Files
+        run: |
+          pwd
+          ls -la
+          ls -la docker
 
       # =========================
       # Docker Login
@@ -58,33 +67,28 @@ jobs:
       # Terraform Init
       # =========================
       - name: Terraform Init
-        working-directory: terraform
         run: terraform init -input=false
 
       # =========================
       # Terraform Format Check
       # =========================
       - name: Terraform Format Check
-        working-directory: terraform
         run: terraform fmt -check -recursive
 
       # =========================
       # Terraform Validate
       # =========================
       - name: Terraform Validate
-        working-directory: terraform
         run: terraform validate
 
       # =========================
       # Terraform Plan
       # =========================
       - name: Terraform Plan
-        working-directory: terraform
         run: terraform plan -input=false -no-color
 
       # =========================
       # Terraform Apply
       # =========================
       - name: Terraform Apply
-        working-directory: terraform
         run: terraform apply -auto-approve -input=false
