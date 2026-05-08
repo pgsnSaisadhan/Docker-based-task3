@@ -137,16 +137,20 @@ apt-get install -y docker.io
 systemctl start docker
 systemctl enable docker
 
-# Pull latest image
-sudo docker pull ${var.docker_username}/devops-app:latest
-
 # Remove old container if exists
 sudo docker rm -f devops-container || true
+
+# Remove old image
+sudo docker rmi ${var.docker_username}/devops-app:latest || true
+
+# Pull latest image
+sudo docker pull ${var.docker_username}/devops-app:latest
 
 # Run container
 sudo docker run -d \
   --name devops-container \
   -p 80:80 \
+  --restart always \
   ${var.docker_username}/devops-app:latest
 
 EOF
