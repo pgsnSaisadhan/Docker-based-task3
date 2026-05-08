@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "Name of the Azure Resource Group"
   type        = string
-  default     = "saisadhan-rg"
+  default     = "saisadhan-rgdocker"
 }
 
 variable "location" {
