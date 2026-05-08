@@ -150,5 +150,5 @@ sudo docker run -d \
   ${var.docker_username}/devops-app:latest
 
 EOF
-)
+  )
 }
