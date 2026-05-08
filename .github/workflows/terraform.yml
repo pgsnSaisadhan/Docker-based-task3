@@ -1,0 +1,90 @@
+name: Full DevOps CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+    
+      TF_VAR_admin_password: ${{ secrets.TF_ADMIN_PASSWORD }}
+      
+      TF_VAR_docker_username: ${{ secrets.DOCKER_USERNAME }}
+      TF_VAR_docker_password: ${{ secrets.DOCKER_PASSWORD }}
+    steps:
+
+      # =========================
+      # Checkout Repository
+      # =========================
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # =========================
+      # Docker Login
+      # =========================
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # =========================
+      # Build Docker Image
+      # =========================
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/devops-app:latest .
+
+      # =========================
+      # Push Docker Image
+      # =========================
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+
+      # =========================
+      # Setup Terraform
+      # =========================
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # =========================
+      # Terraform Init
+      # =========================
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -input=false
+
+      # =========================
+      # Terraform Format Check
+      # =========================
+      - name: Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+
+      # =========================
+      # Terraform Validate
+      # =========================
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      # =========================
+      # Terraform Plan
+      # =========================
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -input=false -no-color
+
+      # =========================
+      # Terraform Apply
+      # =========================
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve -input=false
